@@ -69,7 +69,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 syst
 .legend .swatch{ width:18px; height:10px; border-radius:2px; }
 .legend .muted{ color: var(--muted); font-size:12px; }
 
-/* --- Leaflet tweaks for dark UI --- */
+/* --- Leaflet for dark UI --- */
 .leaflet-control-zoom a,
 .leaflet-bar a { background:#0f1320; color:#e7ecf3; border-color: var(--border); }
 .leaflet-control-zoom a:hover,
