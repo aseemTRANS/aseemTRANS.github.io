@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
   <head>
     <meta charset="utf-8" />
-    <title>USA Weather Map</title>
+    <title>UK Rain Radar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Leaflet CSS -->
+    <!-- Leaflet -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -13,20 +13,42 @@
       crossorigin=""
     />
 
-    <!-- App CSS -->
-    <link href="weather.css" rel="stylesheet" />
+    <!-- App styles -->
+    <link rel="stylesheet" href="weather.css" />
 
-    <!-- Fallback: ensure map is visible even if CSS fails to load -->
+    <!-- Fallback map sizing (in case CSS fails to load) -->
     <style>
       html, body { height: 100%; margin: 0; }
       #map { height: 100vh; width: 100%; }
     </style>
   </head>
   <body>
-    <div id="map" role="region" aria-label="Interactive weather map of the United States"></div>
-    <div id="status" aria-live="polite" aria-atomic="true"></div>
+    <!-- Top app bar -->
+    <header class="appbar" role="banner">
+      <div class="brand">
+        <span class="dot"></span> UK Rain Radar
+      </div>
+      <div class="appbar-right">
+        <span id="timestamp" aria-live="polite" aria-atomic="true">Loading…</span>
+      </div>
+    </header>
 
-    <!-- Leaflet JS -->
+    <!-- Map -->
+    <div id="map" role="region" aria-label="Interactive rain radar map of the United Kingdom"></div>
+
+    <!-- Control panel (overlay) -->
+    <div class="panel" role="group" aria-label="Radar timeline controls">
+      <button id="btnBack" class="btn" title="Step back 1 frame" aria-label="Step back 1 frame">⟨</button>
+      <button id="btnPlay" class="btn primary" title="Play/Pause animation" aria-label="Play rain radar">▶</button>
+      <button id="btnFwd" class="btn" title="Step forward 1 frame" aria-label="Step forward 1 frame">⟩</button>
+      <input id="slider" class="slider" type="range" min="0" max="0" step="1" value="0" aria-label="Radar time slider" />
+      <label for="slider" id="frameLabel" class="label">Frame 0/0</label>
+    </div>
+
+    <!-- Status / toasts -->
+    <div id="status" class="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Leaflet -->
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -34,7 +56,7 @@
       defer
     ></script>
 
-    <!-- Your app -->
+    <!-- App -->
     <script src="weather.js" defer></script>
   </body>
 </html>
