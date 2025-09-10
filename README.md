@@ -17,10 +17,10 @@ Live demo: https://aseemtrans.github.io/weather/
 
 ## Tech stack
 
-Leaflet 1.9.x
-RainViewer public tiles (https://api.rainviewer.com/public/weather-maps.json)
-Esri World Dark Gray Base tiles
-Vanilla HTML/CSS/JS (no bundler, no framework)
+* Leaflet 1.9.x
+* RainViewer public tiles (https://api.rainviewer.com/public/weather-maps.json)
+* Esri World Dark Gray Base tiles
+* Vanilla HTML/CSS/JS (no bundler, no framework)
 
 
 ## How it works (RainViewer timeline)
