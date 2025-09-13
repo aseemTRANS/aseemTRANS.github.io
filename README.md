@@ -1,6 +1,6 @@
-## UK Rain Radar (Leaflet + RainViewer)
+## Rain Radar Map (Leaflet + RainViewer)
 
-A lightweight, static web app that visualises live rain radar over the UK (~around the world) using RainViewer tiles on a dark basemap. Built with vanilla HTML/CSS/JS and Leaflet. No build step, deployable with GitHub Pages.
+A lightweight, static web app that visualises live rain radar around the world using RainViewer tiles on a dark basemap. Built with vanilla HTML/CSS/JS and Leaflet. No build step, deployable with GitHub Pages.
 
 Live demo: https://aseemtrans.github.io/weather/
 
