@@ -2,7 +2,7 @@
 
 A lightweight, static web app that visualises live rain radar around the world using RainViewer tiles on a dark basemap. Built with vanilla HTML/CSS/JS and Leaflet. No build step, deployable with GitHub Pages.
 
-Live demo: https://aseemtrans.github.io/weather/
+Live demo: https://aseemtrans.github.io/rain_weather_alert
 
 ## Features
 
