@@ -1,175 +1,74 @@
-/* UK Rain Radar professional viewer
- * - Leaflet + RainViewer API (public)
- * - Esri World Dark Gray basemap
- * - Timeline: play/pause, step, slider
- * - Timestamp label, legend, scale bar
- * - Graceful errors
- */
+:root{
+  --bg: #0b0d12;
+  --panel: #121620;
+  --muted: #9aa4b2;
+  --text: #e7ecf3;
+  --accent: #4da3ff;
+  --accent-2:#6bdcff;
+  --border:#1f2533;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
 
-(function () {
-  // ---- Elements
-  const statusEl = document.getElementById('status');
-  const tsEl = document.getElementById('timestamp');
-  const slider = document.getElementById('slider');
-  const frameLabel = document.getElementById('frameLabel');
-  const btnPlay = document.getElementById('btnPlay');
-  const btnBack = document.getElementById('btnBack');
-  const btnFwd  = document.getElementById('btnFwd');
+* { box-sizing: border-box; }
+html, body, #map { height: 100%; width: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
 
-  const showStatus = (msg, ms=3000) => {
-    statusEl.textContent = msg;
-    statusEl.style.display = 'block';
-    if (ms) setTimeout(()=>{ statusEl.style.display='none'; }, ms);
-  };
+/* App bar */
+.appbar{
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; background: linear-gradient(180deg, #0c0f16 0%, #0b0d12 100%);
+  border-bottom: 1px solid var(--border); z-index: 1001;
+}
+.brand{ font-weight: 700; letter-spacing:.2px; display:flex; align-items:center; gap:10px; }
+.brand .dot{ width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:inline-block; }
+.appbar-right{ color: var(--muted); }
 
-  // ---- Map
-  const map = L.map('map', { minZoom: 4, worldCopyJump: true });
-  map.setView([54.5, -2.5], 6); // UK centroid
+.badge{
+  display:inline-block; padding:6px 10px; border-radius:999px;
+  background: rgba(77,163,255,.15); color:#eaf2ff; border:1px solid rgba(77,163,255,.35);
+  font-weight:600;
+}
 
-  // Esri World Dark Gray basemap
-  const esriDark = L.tileLayer(
-    'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    {
-      maxZoom: 19,
-      attribution:
-        'Basemap © Esri, HERE, Garmin, © OpenStreetMap contributors'
-    }
-  ).addTo(map);
+/* Map */
+#map { position: absolute; top: 52px; left: 0; right: 0; bottom: 0; }
 
-  // Optional: alternate basemap (OSM Standard)
-  const osmStd = L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    { maxZoom: 19, attribution: '© OpenStreetMap contributors' }
-  );
+/* Controls */
+.panel{
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: 16px; display: flex; align-items: center; gap: 10px;
+  background: rgba(18,22,32,.9); padding: 10px 12px; border:1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow); z-index: 1001; backdrop-filter: blur(4px);
+}
+.btn{
+  appearance: none; border:1px solid var(--border); background:#0f1320; color:var(--text);
+  padding:7px 10px; border-radius:10px; cursor:pointer;
+}
+.btn:hover{ border-color:#2a3346; background:#12182a; }
+.btn.primary{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#081019; border-color: transparent; font-weight: 600; }
+.btn.primary:hover{ filter: brightness(1.05); }
+.slider{ width: 300px; accent-color: var(--accent); background: transparent; }
+.label{ color: var(--muted); min-width: 90px; text-align:center; }
 
-  // Layer control seed
-  const baseMaps = { 'Esri Dark Gray': esriDark, 'OSM Standard': osmStd };
-  const overlayMaps = {};
-  const layerCtrl = L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
+.status{
+  position: absolute; left:50%; transform: translateX(-50%);
+  top: 64px; padding: 8px 12px; border-radius: 10px; color:#fff; background: rgba(0,0,0,.55);
+  z-index:1001; display:none; box-shadow: var(--shadow);
+}
 
-  // Scale bar
-  L.control.scale({ metric: true, imperial: false }).addTo(map);
+/* Legend */
+.leaflet-control.legend{
+  background: rgba(18,22,32,.92); color: var(--text);
+  border:1px solid var(--border); border-radius: 10px; padding: 10px; box-shadow: var(--shadow);
+}
+.legend h4{ margin:0 0 6px; font-size: 13px; color:#cbd5e1; }
+.legend .gradient{ width: 180px; height: 10px; border-radius: 3px; margin: 2px 0 6px; border:1px solid var(--border); }
+.legend .scale{ display:flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.legend .swatches{ display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; margin-top:6px; }
+.legend .swatch{ height:10px; border-radius: 2px; border:1px solid rgba(255,255,255,.25); }
 
-  // ---- Legend (RainViewer default colour scheme approximation)
-  const LegendControl = L.Control.extend({
-    options: { position: 'bottomright' },
-    onAdd: function() {
-      const div = L.DomUtil.create('div', 'leaflet-control legend');
-      div.innerHTML = `
-        <h4>Radar intensity</h4>
-        <div class="row"><span class="swatch" style="background:#9be7ff"></span> Light</div>
-        <div class="row"><span class="swatch" style="background:#52c7ff"></span> Moderate</div>
-        <div class="row"><span class="swatch" style="background:#1e90ff"></span> Heavy</div>
-        <div class="row"><span class="swatch" style="background:#0048ff"></span> Very heavy</div>
-        <div class="row"><span class="swatch" style="background:#8000ff"></span> Intense</div>
-        <div class="row"><span class="swatch" style="background:#ff00a8"></span> Extreme</div>
-        <div class="muted">Source: RainViewer</div>
-      `;
-      return div;
-    }
-  });
-  map.addControl(new LegendControl());
-
-  // ---- RainViewer logic
-  const API = 'https://api.rainviewer.com/public/weather-maps.json';
-  let frames = [];       // Array of frame metadata (past + nowcast)
-  let frameIndex = 0;    // Current frame index
-  let playing = false;
-  let animTimer = null;
-
-  // Use 256 tile size; switch to 512 on HiDPI if you prefer
-  const TILE_SIZE = (window.devicePixelRatio > 1) ? 512 : 256;
-  const COLOR_SCHEME = 2; // 0..3 schemes in RainViewer
-  const SMOOTH = 1;       // 0 off, 1 on
-  const BRIGHTNESS = 1;   // 0..1..n multiplicative (keep 1)
-
-  // Build tile template from a frame object
-  const tileUrl = (host, path) => `${host}${path}/${TILE_SIZE}/{z}/{x}/{y}/${COLOR_SCHEME}/${SMOOTH}_${BRIGHTNESS}.png`;
-
-  // Single tile layer we will retarget via setUrl()
-  const radarLayer = L.tileLayer('', { opacity: 0.65, attribution: 'Radar © RainViewer' });
-
-  function updateTimestamp(unixSeconds) {
-    if (!tsEl) return;
-    const d = new Date((unixSeconds || 0) * 1000);
-    tsEl.textContent = isNaN(d) ? '—' : d.toLocaleString('en-GB', { hour12: false });
-  }
-
-  function updateFrameLabel() {
-    frameLabel.textContent = `Frame ${frameIndex + 1}/${frames.length}`;
-  }
-
-  function showFrame(i) {
-    if (!frames.length) return;
-    frameIndex = Math.max(0, Math.min(i, frames.length - 1));
-    const f = frames[frameIndex];
-    radarLayer.setUrl(tileUrl(f.host, f.path));
-    updateTimestamp(f.time);
-    slider.value = String(frameIndex);
-    updateFrameLabel();
-  }
-
-  function step(delta) {
-    let i = frameIndex + delta;
-    if (i >= frames.length) i = 0;
-    if (i < 0) i = frames.length - 1;
-    showFrame(i);
-  }
-
-  function play() {
-    if (playing || !frames.length) return;
-    playing = true;
-    btnPlay.textContent = '❚❚';
-    animTimer = setInterval(() => step(1), 600); // speed
-  }
-  function pause() {
-    playing = false;
-    btnPlay.textContent = '▶';
-    if (animTimer) { clearInterval(animTimer); animTimer = null; }
-  }
-  function togglePlay() { playing ? pause() : play(); }
-
-  // Wire controls
-  btnPlay.addEventListener('click', togglePlay);
-  btnBack.addEventListener('click', () => { pause(); step(-1); });
-  btnFwd.addEventListener('click',  () => { pause(); step(+1); });
-  slider.addEventListener('input',  (e) => { pause(); showFrame(parseInt(e.target.value, 10)); });
-
-  // Load RainViewer configuration
-  async function loadRadar() {
-    showStatus('Loading rain radar…', 1200);
-    try {
-      const res = await fetch(API, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`RainViewer ${res.status}`);
-      const cfg = await res.json();
-
-      const past = (cfg.radar && cfg.radar.past) || [];
-      const nowc = (cfg.radar && cfg.radar.nowcast) || [];
-      if (!past.length && !nowc.length) {
-        showStatus('No radar frames available right now.');
-        return;
-      }
-      // Build a single ordered list: past then nowcast
-      const all = [...past, ...nowc].map(f => ({ ...f, host: cfg.host }));
-      frames = all;
-      slider.max = String(frames.length - 1);
-      slider.value = String(frames.length - 1); // show latest by default
-      frameIndex = frames.length - 1;
-
-      // Add radar layer to map & layer control
-      if (!map.hasLayer(radarLayer)) {
-        radarLayer.addTo(map);
-        layerCtrl.addOverlay(radarLayer, 'Rain Radar (RainViewer)');
-      }
-
-      showFrame(frameIndex);
-    } catch (err) {
-      console.error(err);
-      showStatus('Could not load RainViewer (network/CORS). Try again later.');
-    }
-  }
-
-  // Initial load & periodic refresh (every 5 minutes)
-  loadRadar();
-  setInterval(loadRadar, 5 * 60 * 1000);
-})();
+/* Dark UI tweaks */
+.leaflet-control-zoom a, .leaflet-bar a { background:#0f1320; color:#e7ecf3; border-color: var(--border); }
+.leaflet-control-zoom a:hover, .leaflet-bar a:hover{ background:#12182a; }
+.leaflet-popup-content{ color:#e7ecf3; }
+.leaflet-container a{ color: var(--accent); }
