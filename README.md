@@ -6,13 +6,13 @@ Live demo: https://aseemtrans.github.io/rain_weather_alert/weather
 
 ## Features
 
-🌧️ Live radar from RainViewer (past + nowcast frames)
-▶️ Timeline controls: play/pause, step, slider
-🕒 Timestamp of the displayed frame (local time)
-🗺️ Basemap: Esri World Dark Gray (with optional OSM toggle)
-📏 Legend for radar intensity + scale bar
-♿ Accessible labels and ARIA live regions
-⚠️ Graceful error handling (network/CORS)
+- 🌧️ Live radar from RainViewer (past + nowcast frames)
+- ▶️ Timeline controls: play/pause, step, slider
+- 🕒 Timestamp of the displayed frame (local time)
+- 🗺️ Basemap: Esri World Dark Gray (with optional OSM toggle)
+- 📏 Legend for radar intensity + scale bar
+- ♿ Accessible labels and ARIA live regions
+- ⚠️ Graceful error handling (network/CORS)
 
 
 ## Tech stack
