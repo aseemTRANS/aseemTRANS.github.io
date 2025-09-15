@@ -2,7 +2,7 @@
 <html lang="en-GB">
   <head>
     <meta charset="utf-8" />
-    <title>Global Rain Radar</title>
+    <title>UK Rain Radar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Leaflet -->
@@ -16,7 +16,7 @@
     <!-- App styles -->
     <link rel="stylesheet" href="weather.css" />
 
-    <!-- Fallback map sizing -->
+    <!-- Fallback map sizing (in case CSS fails to load) -->
     <style>
       html, body { height: 100%; margin: 0; }
       #map { height: 100vh; width: 100%; }
@@ -26,17 +26,17 @@
     <!-- Top app bar -->
     <header class="appbar" role="banner">
       <div class="brand">
-        <span class="dot"></span> Global Rain Radar
+        <span class="dot"></span> UK Rain Radar
       </div>
       <div class="appbar-right">
-        <span class="badge" id="timestamp" aria-live="polite" aria-atomic="true">Loading…</span>
+        <span id="timestamp" aria-live="polite" aria-atomic="true">Loading…</span>
       </div>
     </header>
 
     <!-- Map -->
-    <div id="map" role="region" aria-label="Interactive global rain radar map"></div>
+    <div id="map" role="region" aria-label="Interactive rain radar map of the United Kingdom"></div>
 
-    <!-- Control panel -->
+    <!-- Control panel (overlay) -->
     <div class="panel" role="group" aria-label="Radar timeline controls">
       <button id="btnBack" class="btn" title="Step back 1 frame" aria-label="Step back 1 frame">⟨</button>
       <button id="btnPlay" class="btn primary" title="Play/Pause animation" aria-label="Play rain radar">▶</button>
@@ -45,7 +45,7 @@
       <label for="slider" id="frameLabel" class="label">Frame 0/0</label>
     </div>
 
-    <!-- Status -->
+    <!-- Status / toasts -->
     <div id="status" class="status" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Leaflet -->
